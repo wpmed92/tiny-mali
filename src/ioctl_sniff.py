@@ -2,6 +2,7 @@
 import ctypes, ctypes.util, struct, fcntl, re
 from hexdump import hexdump
 from copy import deepcopy
+from include import mali_ioctl_structs
 import pathlib, sys
 from tinygrad.helpers import to_mv, getenv
 from tinygrad.runtime.autogen import adreno
@@ -11,6 +12,10 @@ IOCTL = getenv("IOCTL", 0)
 
 @ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_ulong, ctypes.c_void_p)
 def ioctl(fd, request, argp):
+  if request == 0x40048001:
+    flags = ctypes.cast(argp, ctypes.POINTER(mali_ioctl_structs.struct_kbase_ioctl_set_flags)).contents
+    print(f"flags={hex(flags.create_flags)}")
+
   ret = libc.syscall(0x1d, ctypes.c_int(fd), ctypes.c_ulong(request), ctypes.c_void_p(argp))
 
   return ret

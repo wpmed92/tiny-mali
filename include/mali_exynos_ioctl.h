@@ -26,8 +26,7 @@
 extern "C" {
 #endif
 
-#include <asm-generic/ioctl.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 #define KBASE_IOCTL_TYPE 0x80
 /* Customer extension range */
@@ -38,7 +37,7 @@ extern "C" {
  * @flags: Amigo flag set by Amigo module
  */
 struct mali_exynos_ioctl_amigo_flags {
-	__u32 flags;
+	uint32_t flags;
 };
 
 #define MALI_EXYNOS_IOCTL_AMIGO_FLAGS \
@@ -48,20 +47,20 @@ struct mali_exynos_ioctl_amigo_flags {
  * struct kbase_ioctl_slsi_util_info - Read gpu utilization info
  */
 struct mali_exynos_ioctl_gts_info {
-	__u32 util_avg;
-	__u32 hcm_mode;
-	__u64 out_data[4];
-	__u64 input;
-	__u64 input2;
-	__u64 freq;
-	__u64 flimit;
+	uint32_t util_avg;
+	uint32_t hcm_mode;
+	uint64_t out_data[4];
+	uint64_t input;
+	uint64_t input2;
+	uint64_t freq;
+	uint64_t flimit;
 };
 
 #define MALI_EXYNOS_IOCTL_READ_GTS_INFO \
 	_IOR(KBASE_IOCTL_EXTRA_TYPE, 1, struct mali_exynos_ioctl_gts_info)
 
 struct mali_exynos_ioctl_hcm_pmqos {
-	__u32 mode;
+	uint32_t mode;
 };
 
 #define MALI_EXYNOS_IOCTL_HCM_PMQOS \
@@ -74,7 +73,7 @@ struct mali_exynos_ioctl_hcm_pmqos {
  * The data provided is accessible through a sysfs file
  */
 struct mali_exynos_ioctl_mem_usage_add {
-	__u64 gl_mem_usage;
+	uint64_t gl_mem_usage;
 };
 
 #define MALI_EXYNOS_IOCTL_MEM_USAGE_ADD \
@@ -98,7 +97,7 @@ typedef enum cmar_boost_flag {
  * @flags: stores cmar_boost_flag
  */
 struct mali_exynos_ioctl_cmar_boost {
-	__u32 flags;
+	uint32_t flags;
 };
 
 #define MALI_EXYNOS_IOCTL_CMAR_BOOST \
@@ -106,8 +105,8 @@ struct mali_exynos_ioctl_cmar_boost {
 
 /* GPU Profiler - CONFIG_MALI_TSG */
 struct kbase_ioctl_slsi_egp {
-	__u64 start_timestamp;
-	__u64 end_timestamp;
+	uint64_t start_timestamp;
+	uint64_t end_timestamp;
 };
 
 #define KBASE_IOCTL_SLSI_EGP \
@@ -120,7 +119,7 @@ struct kbase_ioctl_slsi_egp {
  * @flags: Flags for future expansion
  */
 struct kbase_ioctl_slsi_singlebuffer_boost_flags {
-	__u32 flags;
+	uint32_t flags;
 };
 
 #define KBASE_IOCTL_SLSI_SINGLEBUFFER_BOOST_FLAGS \

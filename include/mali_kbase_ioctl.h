@@ -26,13 +26,12 @@
 extern "C" {
 #endif
 
-#include <asm-generic/ioctl.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 #if MALI_USE_CSF
 #include "csf/mali_kbase_csf_ioctl.h"
 #else
-#include "jm/mali_kbase_jm_ioctl.h"
+#include "mali_kbase_jm_ioctl.h"
 #endif /* MALI_USE_CSF */
 
 #define KBASE_IOCTL_TYPE 0x80
@@ -43,7 +42,7 @@ extern "C" {
  * @create_flags: Flags - see base_context_create_flags
  */
 struct kbase_ioctl_set_flags {
-	__u32 create_flags;
+	uint32_t create_flags;
 };
 
 #define KBASE_IOCTL_SET_FLAGS \
@@ -64,21 +63,21 @@ struct kbase_ioctl_set_flags {
  * @flags may be used in the future to request a different format for the
  * buffer. With @flags == 0 the following format is used.
  *
- * The buffer will be filled with pairs of values, a __u32 key identifying the
+ * The buffer will be filled with pairs of values, a uint32_t key identifying the
  * property followed by the value. The size of the value is identified using
  * the bottom bits of the key. The value then immediately followed the key and
  * is tightly packed (there is no padding). All keys and values are
  * little-endian.
  *
- * 00 = __u8
- * 01 = __u16
- * 10 = __u32
- * 11 = __u64
+ * 00 = uint8_t
+ * 01 = uint16_t
+ * 10 = uint32_t
+ * 11 = uint64_t
  */
 struct kbase_ioctl_get_gpuprops {
-	__u64 buffer;
-	__u32 size;
-	__u32 flags;
+	uint64_t buffer;
+	uint32_t size;
+	uint32_t flags;
 };
 
 #define KBASE_IOCTL_GET_GPUPROPS \
@@ -96,15 +95,15 @@ struct kbase_ioctl_get_gpuprops {
  * @out.gpu_va: The GPU virtual address which is allocated
  */
 union kbase_ioctl_mem_alloc {
-	struct {
-		__u64 va_pages;
-		__u64 commit_pages;
-		__u64 extension;
-		__u64 flags;
+	struct inner_1 {
+		uint64_t va_pages;
+		uint64_t commit_pages;
+		uint64_t extension;
+		uint64_t flags;
 	} in;
-	struct {
-		__u64 flags;
-		__u64 gpu_va;
+	struct inner_2 {
+		uint64_t flags;
+		uint64_t gpu_va;
 	} out;
 };
 
@@ -122,28 +121,28 @@ union kbase_ioctl_mem_alloc {
  * Use a %KBASE_MEM_QUERY_xxx flag as input for @query.
  */
 union kbase_ioctl_mem_query {
-	struct {
-		__u64 gpu_addr;
-		__u64 query;
+	struct inner_3 {
+		uint64_t gpu_addr;
+		uint64_t query;
 	} in;
-	struct {
-		__u64 value;
+	struct inner_4 {
+		uint64_t value;
 	} out;
 };
 
 #define KBASE_IOCTL_MEM_QUERY \
 	_IOWR(KBASE_IOCTL_TYPE, 6, union kbase_ioctl_mem_query)
 
-#define KBASE_MEM_QUERY_COMMIT_SIZE	((__u64)1)
-#define KBASE_MEM_QUERY_VA_SIZE		((__u64)2)
-#define KBASE_MEM_QUERY_FLAGS		((__u64)3)
+#define KBASE_MEM_QUERY_COMMIT_SIZE	((uint64_t)1)
+#define KBASE_MEM_QUERY_VA_SIZE		((uint64_t)2)
+#define KBASE_MEM_QUERY_FLAGS		((uint64_t)3)
 
 /**
  * struct kbase_ioctl_mem_free - Free a memory region
  * @gpu_addr: Handle to the region to free
  */
 struct kbase_ioctl_mem_free {
-	__u64 gpu_addr;
+	uint64_t gpu_addr;
 };
 
 #define KBASE_IOCTL_MEM_FREE \
@@ -160,11 +159,11 @@ struct kbase_ioctl_mem_free {
  * A fd is returned from the ioctl if successful, or a negative value on error
  */
 struct kbase_ioctl_hwcnt_reader_setup {
-	__u32 buffer_count;
-	__u32 fe_bm;
-	__u32 shader_bm;
-	__u32 tiler_bm;
-	__u32 mmu_l2_bm;
+	uint32_t buffer_count;
+	uint32_t fe_bm;
+	uint32_t shader_bm;
+	uint32_t tiler_bm;
+	uint32_t mmu_l2_bm;
 };
 
 #define KBASE_IOCTL_HWCNT_READER_SETUP \
@@ -179,11 +178,11 @@ struct kbase_ioctl_hwcnt_reader_setup {
  * @mmu_l2_bm:    counters selection bitmask (MMU_L2)
  */
 struct kbase_ioctl_hwcnt_enable {
-	__u64 dump_buffer;
-	__u32 fe_bm;
-	__u32 shader_bm;
-	__u32 tiler_bm;
-	__u32 mmu_l2_bm;
+	uint64_t dump_buffer;
+	uint32_t fe_bm;
+	uint32_t shader_bm;
+	uint32_t tiler_bm;
+	uint32_t mmu_l2_bm;
 };
 
 #define KBASE_IOCTL_HWCNT_ENABLE \
@@ -202,9 +201,9 @@ struct kbase_ioctl_hwcnt_enable {
  * @padding: Padding.
  */
 struct kbase_ioctl_hwcnt_values {
-	__u64 data;
-	__u32 size;
-	__u32 padding;
+	uint64_t data;
+	uint32_t size;
+	uint32_t padding;
 };
 
 #define KBASE_IOCTL_HWCNT_SET \
@@ -215,7 +214,7 @@ struct kbase_ioctl_hwcnt_values {
  * @counter:   A counter of disjoint events in the kernel
  */
 struct kbase_ioctl_disjoint_query {
-	__u32 counter;
+	uint32_t counter;
 };
 
 #define KBASE_IOCTL_DISJOINT_QUERY \
@@ -235,9 +234,9 @@ struct kbase_ioctl_disjoint_query {
  * version info to the buffer specified in the ioctl.
  */
 struct kbase_ioctl_get_ddk_version {
-	__u64 version_buffer;
-	__u32 size;
-	__u32 padding;
+	uint64_t version_buffer;
+	uint32_t size;
+	uint32_t padding;
 };
 
 #define KBASE_IOCTL_GET_DDK_VERSION \
@@ -256,7 +255,7 @@ struct kbase_ioctl_get_ddk_version {
  * backwards compatibility.
  */
 struct kbase_ioctl_mem_jit_init_10_2 {
-	__u64 va_pages;
+	uint64_t va_pages;
 };
 
 #define KBASE_IOCTL_MEM_JIT_INIT_10_2 \
@@ -279,11 +278,11 @@ struct kbase_ioctl_mem_jit_init_10_2 {
  * backwards compatibility.
  */
 struct kbase_ioctl_mem_jit_init_11_5 {
-	__u64 va_pages;
-	__u8 max_allocations;
-	__u8 trim_level;
-	__u8 group_id;
-	__u8 padding[5];
+	uint64_t va_pages;
+	uint8_t max_allocations;
+	uint8_t trim_level;
+	uint8_t group_id;
+	uint8_t padding[5];
 };
 
 #define KBASE_IOCTL_MEM_JIT_INIT_11_5 \
@@ -304,12 +303,12 @@ struct kbase_ioctl_mem_jit_init_11_5 {
  * specified in @va_pages may be ignored.
  */
 struct kbase_ioctl_mem_jit_init {
-	__u64 va_pages;
-	__u8 max_allocations;
-	__u8 trim_level;
-	__u8 group_id;
-	__u8 padding[5];
-	__u64 phys_pages;
+	uint64_t va_pages;
+	uint8_t max_allocations;
+	uint8_t trim_level;
+	uint8_t group_id;
+	uint8_t padding[5];
+	uint64_t phys_pages;
 };
 
 #define KBASE_IOCTL_MEM_JIT_INIT \
@@ -326,11 +325,11 @@ struct kbase_ioctl_mem_jit_init {
  * @padding: Padding to round up to a multiple of 8 bytes, must be zero
  */
 struct kbase_ioctl_mem_sync {
-	__u64 handle;
-	__u64 user_addr;
-	__u64 size;
-	__u8 type;
-	__u8 padding[7];
+	uint64_t handle;
+	uint64_t user_addr;
+	uint64_t size;
+	uint8_t type;
+	uint8_t padding[7];
 };
 
 #define KBASE_IOCTL_MEM_SYNC \
@@ -347,13 +346,13 @@ struct kbase_ioctl_mem_sync {
  * @out.offset: The offset from the start of the memory region to @cpu_addr
  */
 union kbase_ioctl_mem_find_cpu_offset {
-	struct {
-		__u64 gpu_addr;
-		__u64 cpu_addr;
-		__u64 size;
+	struct inner_5 {
+		uint64_t gpu_addr;
+		uint64_t cpu_addr;
+		uint64_t size;
 	} in;
-	struct {
-		__u64 offset;
+	struct inner_6 {
+		uint64_t offset;
 	} out;
 };
 
@@ -366,7 +365,7 @@ union kbase_ioctl_mem_find_cpu_offset {
  * @id: The kernel context ID
  */
 struct kbase_ioctl_get_context_id {
-	__u32 id;
+	uint32_t id;
 };
 
 #define KBASE_IOCTL_GET_CONTEXT_ID \
@@ -380,7 +379,7 @@ struct kbase_ioctl_get_context_id {
  * The ioctl returns a file descriptor when successful
  */
 struct kbase_ioctl_tlstream_acquire {
-	__u32 flags;
+	uint32_t flags;
 };
 
 #define KBASE_IOCTL_TLSTREAM_ACQUIRE \
@@ -400,8 +399,8 @@ struct kbase_ioctl_tlstream_acquire {
  *   -EINVAL: Invalid arguments
  */
 struct kbase_ioctl_mem_commit {
-	__u64 gpu_addr;
-	__u64 pages;
+	uint64_t gpu_addr;
+	uint64_t pages;
 };
 
 #define KBASE_IOCTL_MEM_COMMIT \
@@ -420,16 +419,16 @@ struct kbase_ioctl_mem_commit {
  * @out.va_pages: Size of the new alias
  */
 union kbase_ioctl_mem_alias {
-	struct {
-		__u64 flags;
-		__u64 stride;
-		__u64 nents;
-		__u64 aliasing_info;
+	struct inner_7 {
+		uint64_t flags;
+		uint64_t stride;
+		uint64_t nents;
+		uint64_t aliasing_info;
 	} in;
-	struct {
-		__u64 flags;
-		__u64 gpu_va;
-		__u64 va_pages;
+	struct inner_8 {
+		uint64_t flags;
+		uint64_t gpu_va;
+		uint64_t va_pages;
 	} out;
 };
 
@@ -449,16 +448,16 @@ union kbase_ioctl_mem_alias {
  * @out.va_pages: Size of the new alias
  */
 union kbase_ioctl_mem_import {
-	struct {
-		__u64 flags;
-		__u64 phandle;
-		__u32 type;
-		__u32 padding;
+	struct inner_9 {
+		uint64_t flags;
+		uint64_t phandle;
+		uint32_t type;
+		uint32_t padding;
 	} in;
-	struct {
-		__u64 flags;
-		__u64 gpu_va;
-		__u64 va_pages;
+	struct inner_10 {
+		uint64_t flags;
+		uint64_t gpu_va;
+		uint64_t va_pages;
 	} out;
 };
 
@@ -472,9 +471,9 @@ union kbase_ioctl_mem_import {
  * @mask: Mask of the flags to modify
  */
 struct kbase_ioctl_mem_flags_change {
-	__u64 gpu_va;
-	__u64 flags;
-	__u64 mask;
+	uint64_t gpu_va;
+	uint64_t flags;
+	uint64_t mask;
 };
 
 #define KBASE_IOCTL_MEM_FLAGS_CHANGE \
@@ -518,9 +517,9 @@ struct kbase_ioctl_fence_validate {
  * The data provided is accessible through a debugfs file
  */
 struct kbase_ioctl_mem_profile_add {
-	__u64 buffer;
-	__u32 len;
-	__u32 padding;
+	uint64_t buffer;
+	uint32_t len;
+	uint32_t padding;
 };
 
 #define KBASE_IOCTL_MEM_PROFILE_ADD \
@@ -529,11 +528,11 @@ struct kbase_ioctl_mem_profile_add {
 /**
  * struct kbase_ioctl_sticky_resource_map - Permanently map an external resource
  * @count: Number of resources
- * @address: Array of __u64 GPU addresses of the external resources to map
+ * @address: Array of uint64_t GPU addresses of the external resources to map
  */
 struct kbase_ioctl_sticky_resource_map {
-	__u64 count;
-	__u64 address;
+	uint64_t count;
+	uint64_t address;
 };
 
 #define KBASE_IOCTL_STICKY_RESOURCE_MAP \
@@ -543,11 +542,11 @@ struct kbase_ioctl_sticky_resource_map {
  * struct kbase_ioctl_sticky_resource_map - Unmap a resource mapped which was
  *                                          previously permanently mapped
  * @count: Number of resources
- * @address: Array of __u64 GPU addresses of the external resources to unmap
+ * @address: Array of uint64_t GPU addresses of the external resources to unmap
  */
 struct kbase_ioctl_sticky_resource_unmap {
-	__u64 count;
-	__u64 address;
+	uint64_t count;
+	uint64_t address;
 };
 
 #define KBASE_IOCTL_STICKY_RESOURCE_UNMAP \
@@ -568,13 +567,13 @@ struct kbase_ioctl_sticky_resource_unmap {
  * @out.offset: The offset from the start of the memory region to @gpu_addr
  */
 union kbase_ioctl_mem_find_gpu_start_and_offset {
-	struct {
-		__u64 gpu_addr;
-		__u64 size;
+	struct inner_11 {
+		uint64_t gpu_addr;
+		uint64_t size;
 	} in;
-	struct {
-		__u64 start;
-		__u64 offset;
+	struct inner_12 {
+		uint64_t start;
+		uint64_t offset;
 	} out;
 };
 
@@ -603,17 +602,17 @@ union kbase_ioctl_mem_find_gpu_start_and_offset {
  * addresses.
  */
 union kbase_ioctl_cinstr_gwt_dump {
-	struct {
-		__u64 addr_buffer;
-		__u64 size_buffer;
-		__u32 len;
-		__u32 padding;
+	struct inner_13 {
+		uint64_t addr_buffer;
+		uint64_t size_buffer;
+		uint32_t len;
+		uint32_t padding;
 
 	} in;
-	struct {
-		__u32 no_of_addr_collected;
-		__u8 more_data_available;
-		__u8 padding[27];
+	struct inner_14 {
+		uint32_t no_of_addr_collected;
+		uint8_t more_data_available;
+		uint8_t padding[27];
 	} out;
 };
 
@@ -626,7 +625,7 @@ union kbase_ioctl_cinstr_gwt_dump {
  * @va_pages: Number of VA pages to reserve for EXEC_VA
  */
 struct kbase_ioctl_mem_exec_init {
-	__u64 va_pages;
+	uint64_t va_pages;
 };
 
 #define KBASE_IOCTL_MEM_EXEC_INIT \
@@ -641,21 +640,21 @@ struct kbase_ioctl_mem_exec_init {
  * @out: Output parameters
  * @out.sec:           Integer field of the monotonic time, unit in seconds.
  * @out.nsec:          Fractional sec of the monotonic time, in nano-seconds.
- * @out.padding:       Unused, for __u64 alignment
+ * @out.padding:       Unused, for uint64_t alignment
  * @out.timestamp:     System wide timestamp (counter) value.
  * @out.cycle_counter: GPU cycle counter value.
  */
 union kbase_ioctl_get_cpu_gpu_timeinfo {
-	struct {
-		__u32 request_flags;
-		__u32 paddings[7];
+	struct inner_15 {
+		uint32_t request_flags;
+		uint32_t paddings[7];
 	} in;
-	struct {
-		__u64 sec;
-		__u32 nsec;
-		__u32 padding;
-		__u64 timestamp;
-		__u64 cycle_counter;
+	struct inner_16 {
+		uint64_t sec;
+		uint32_t nsec;
+		uint32_t padding;
+		uint64_t timestamp;
+		uint64_t cycle_counter;
 	} out;
 };
 
@@ -668,7 +667,7 @@ union kbase_ioctl_get_cpu_gpu_timeinfo {
  */
 
 struct kbase_ioctl_context_priority_check {
-	__u8 priority;
+	uint8_t priority;
 };
 
 #define KBASE_IOCTL_CONTEXT_PRIORITY_CHECK \
@@ -680,7 +679,7 @@ struct kbase_ioctl_context_priority_check {
  * @max_core_count: Maximum core count
  */
 struct kbase_ioctl_set_limited_core_count {
-	__u8 max_core_count;
+	uint8_t max_core_count;
 };
 
 #define KBASE_IOCTL_SET_LIMITED_CORE_COUNT \
@@ -704,8 +703,8 @@ struct kbase_ioctl_set_limited_core_count {
  * @bytes_generated: number of bytes generated by tracepoints
  */
 struct kbase_ioctl_tlstream_stats {
-	__u32 bytes_collected;
-	__u32 bytes_generated;
+	uint32_t bytes_collected;
+	uint32_t bytes_generated;
 };
 
 #define KBASE_IOCTL_TLSTREAM_STATS \

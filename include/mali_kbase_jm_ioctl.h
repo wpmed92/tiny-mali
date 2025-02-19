@@ -22,8 +22,7 @@
 #ifndef _UAPI_KBASE_JM_IOCTL_H_
 #define _UAPI_KBASE_JM_IOCTL_H_
 
-#include <asm-generic/ioctl.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 /*
  * 11.1:
@@ -131,8 +130,8 @@
  * @minor: Minor version number
  */
 struct kbase_ioctl_version_check {
-	__u16 major;
-	__u16 minor;
+	uint16_t major;
+	uint16_t minor;
 };
 
 #define KBASE_IOCTL_VERSION_CHECK \
@@ -147,9 +146,9 @@ struct kbase_ioctl_version_check {
  * @stride: sizeof(struct base_jd_atom_v2) or sizeof(struct base_jd_atom)
  */
 struct kbase_ioctl_job_submit {
-	__u64 addr;
-	__u32 nr_atoms;
-	__u32 stride;
+	uint64_t addr;
+	uint32_t nr_atoms;
+	uint32_t stride;
 };
 
 #define KBASE_IOCTL_JOB_SUBMIT \
@@ -165,9 +164,9 @@ struct kbase_ioctl_job_submit {
  * @flags: Flags for future expansion
  */
 struct kbase_ioctl_soft_event_update {
-	__u64 event;
-	__u32 new_status;
-	__u32 flags;
+	uint64_t event;
+	uint32_t new_status;
+	uint32_t flags;
 };
 
 #define KBASE_IOCTL_SOFT_EVENT_UPDATE \
@@ -190,9 +189,9 @@ struct kbase_ioctl_soft_event_update {
  * The `size` can be used to cast the opaque memory returned from the kernel.
  */
 struct kbase_kinstr_jm_fd_out {
-	__u16 size;
-	__u8 version;
-	__u8 padding[5];
+	uint16_t size;
+	uint8_t version;
+	uint8_t padding[5];
 };
 
 /**
@@ -204,8 +203,8 @@ struct kbase_kinstr_jm_fd_out {
  * https://www.kernel.org/doc/Documentation/ioctl/botching-up-ioctls.rst
  */
 struct kbase_kinstr_jm_fd_in {
-	__u16 count;
-	__u8 padding[6];
+	uint16_t count;
+	uint8_t padding[6];
 };
 
 union kbase_kinstr_jm_fd {

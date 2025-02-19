@@ -71,4 +71,13 @@ It import the previously generated ioctl map, loops through the given requests, 
 # request  |    dir | type | nr:DECODED_IOCTL_NAME, | size of struct/union
 0x40108002 = IOC(0x1, 0x80, 2:KBASE_IOCTL_JOB_SUBMIT, 0x10)
 ```
-## ioctl sniffing
+## send ioctl commands
+
+The simplest command is a version check, returning driver major and minor versions.
+
+`PYTHONPATH="." python3 src/driver.py`
+
+## Acronyms
+
+CSF - Command Stream Frontend
+JM - Job Manager
