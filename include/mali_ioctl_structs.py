@@ -216,7 +216,7 @@ struct_inner_2._fields_ = [
 
 union_kbase_ioctl_mem_alloc._pack_ = 1 # source:False
 union_kbase_ioctl_mem_alloc._fields_ = [
-    ('in', struct_inner_1),
+    ('_in', struct_inner_1),
     ('out', struct_inner_2),
     ('PADDING_0', ctypes.c_ubyte * 16),
 ]

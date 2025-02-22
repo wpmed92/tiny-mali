@@ -1,0 +1,93 @@
+flags=0x0
+props size=0x0
+props size=0x2d3
+____ALLOC DUMP START____
+in:
+va_pages=32
+commit_pages=32
+extension=0
+flags=7
+out:
+gpu_va=266240
+flags=8199
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=1
+commit_pages=1
+extension=0
+flags=8207
+out:
+gpu_va=266240
+flags=8207
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=1
+commit_pages=1
+extension=0
+flags=8207
+out:
+gpu_va=266240
+flags=8207
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=1
+commit_pages=1
+extension=0
+flags=8207
+out:
+gpu_va=266240
+flags=8207
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=1
+commit_pages=1
+extension=0
+flags=8198
+out:
+gpu_va=266240
+flags=8198
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=513
+commit_pages=513
+extension=0
+flags=14351
+out:
+gpu_va=266240
+flags=14351
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=64
+commit_pages=64
+extension=0
+flags=14351
+out:
+gpu_va=266240
+flags=14351
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=1
+commit_pages=1
+extension=0
+flags=23
+out:
+gpu_va=545460850688
+flags=23
+____ALLOC DUMP END____
+____ALLOC DUMP START____
+in:
+va_pages=4
+commit_pages=4
+extension=0
+flags=12303
+out:
+gpu_va=266240
+flags=12303
+____ALLOC DUMP END____

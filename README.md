@@ -4,12 +4,11 @@ User space driver for Mali-G76 bifrost with the goal to run compute kernels and 
 
 ## Mali-G76
 
-Built on the Bifrost architecture.
-Compute block = quad
-Mal-G72 was 4-wide SIMD, G76 is doubles to 8-wide. (Still narrow wavefront compared to AMD/NVIDIA)
-8 vec3 F32 ADDs in 3 cycles.
-int8 dot product support.
-Doubles SIMD lanes compared to earlier models, has 8-wide Wavefront.
+Built on the Bifrost architecture.  
+Compute block = quad  
+Mali-G72 was 4-wide SIMD, G76 doubles to 8-wide. (Still narrow wavefront compared to AMD/NVIDIA)  
+8 vec3 F32 ADDs in 3 cycles.  
+int8 dot product support.  
 
 ## ioctl command structure
 
@@ -40,10 +39,14 @@ Looking up the meaning of type and nr values.
 type `0x80` is an identifier for `KBASE_IOCTL_TYPE` as defined [here](https://sites.uclouvain.be/SystInfo/usr/include/asm-generic/ioctl.h.html).
 `nr 0` means `KBASE_IOCTL_VERSION_CHECK` (source from the [Exynos 9820 r32p1 driver ioctl includes](https://github.com/LineageOS/android_kernel_samsung_exynos9820/blob/lineage-22.1/include/uapi/gpu/arm/bv_r32p1/mali_kbase_ioctl.h))
 
-`#define KBASE_IOCTL_TYPE 0x80`
+```C
+#define KBASE_IOCTL_TYPE 0x80
+```
 
 We can see commands with type `0x82`, that coresponds to a "customer extension range"
-`#define KBASE_IOCTL_EXTRA_TYPE (KBASE_IOCTL_TYPE + 2) = 0x82`
+```C
+#define KBASE_IOCTL_EXTRA_TYPE (KBASE_IOCTL_TYPE + 2) = 0x82
+```
 
 ## ioctl decode tool
 
@@ -56,6 +59,7 @@ This tool extracts ioctl defines from mali header files. It constructs a map whe
         "nr": nr_num,
         "payload": "struct/union name",
         "dir": "IO/IOR/IOW/IOWR"
+        "size": size_of_payload
     },
 ```
 
@@ -79,5 +83,6 @@ The simplest command is a version check, returning driver major and minor versio
 
 ## Acronyms
 
-CSF - Command Stream Frontend
-JM - Job Manager
+CSF - Command Stream Frontend  
+JM - Job Manager  
+JC - Job Chain

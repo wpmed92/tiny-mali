@@ -171,7 +171,7 @@ if __name__ == "__main__":
         print("Get GPU props")
         print(f"buffer_size={hex(buffer_size)}")
 
-        with open('output.txt', 'w') as f:
+        with open('gpu_props.txt', 'w') as f:
             buf_ptr = ctypes.cast(props_buf, ctypes.c_void_p).value
             buf_end = buf_ptr + buffer_size
             cursor = 0
@@ -195,7 +195,7 @@ if __name__ == "__main__":
                     value = ctypes.cast(buf_ptr, ctypes.POINTER(ctypes.c_uint64)).contents.value
                     buf_ptr += 8
 
-                f.write(f"key={gpu_properties[key]}, value={value}\n")
+                f.write(f"{gpu_properties[key]}={value}\n")
 
         free(props_buf)
     finally:
