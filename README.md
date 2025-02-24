@@ -81,6 +81,33 @@ The simplest command is a version check, returning driver major and minor versio
 
 `PYTHONPATH="." python3 src/driver.py`
 
+## writing to GPU memory
+
+First we have to setup the tracking page. This page needs to be mapped, otherwise the kernel won't allow `KBASE_IOCTL_MEM_ALLOC`:
+
+```Python
+tracking_page = libc.mmap(None, 0x1000, 0, mmap.MAP_SHARED, gpu, mali_base_jm_kernel.BASE_MEM_MAP_TRACKING_HANDLE)
+```
+
+Then we can send the `ioctl`.  
+This command requests 1 page of memory to allocated with CPU write + read, and GPU read + executable protection.  
+This region will probably be filled with shader executable.
+
+```Python
+mem_alloc = mali_ioctl_structs.union_kbase_ioctl_mem_alloc()
+mem_alloc._in.va_pages = 1
+mem_alloc._in.commit_pages = 1
+mem_alloc._in.flags = mali_base_jm_kernel.BASE_MEM_PROT_CPU_RD | mali_base_jm_kernel.BASE_MEM_PROT_CPU_WR | mali_base_jm_kernel.BASE_MEM_PROT_GPU_RD |\
+    mali_base_jm_kernel.BASE_MEM_PROT_GPU_EX
+ret = ioctl(gpu, "KBASE_IOCTL_MEM_ALLOC", mem_alloc)
+```
+
+Map the `gpu_va` we got from the alloc:  
+
+```Python
+gpu_mem = libc.mmap(None, 0x1000, mmap.PROT_READ | mmap.PROT_WRITE, mmap.MAP_SHARED, gpu, mem_alloc.out.gpu_va)
+```
+
 ## Acronyms
 
 CSF - Command Stream Frontend  

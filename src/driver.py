@@ -267,10 +267,6 @@ if __name__ == "__main__":
         print(f"ptr[0]={hex(ord(cpu_ptr[0x1000-1]))}")
         print(f"ptr[0x1000-1]={hex(ord(cpu_ptr[0x1000-1]))}")
 
-        # cleanup
-        #munmap_ret = libc.munmap(tracking_page, 0x1000)
-        #assert munmap_ret != -1, "Unmapping tracking_page failed"
-
         munmap_ret = libc.munmap(gpu_mem, 0x1000)
         assert munmap_ret != -1, "Unmapping gpu_mem failed"
 
