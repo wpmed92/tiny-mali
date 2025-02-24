@@ -5,7 +5,6 @@ import mmap
 import ctypes
 import ctypes.util
 import os
-MAP_FAILED = ctypes.c_void_p(-1)
 
 _IOC_SIZEBITS = 14
 _IOC_NRBITS = 8
@@ -264,7 +263,7 @@ if __name__ == "__main__":
         # Memset to see if accessing the region works
         ctypes.memset(cpu_ptr, 0x92, 0x1000)
         print("Wrote to GPU memory")
-        print(f"ptr[0]={hex(ord(cpu_ptr[0x1000-1]))}")
+        print(f"ptr[0]={hex(ord(cpu_ptr[0]))}")
         print(f"ptr[0x1000-1]={hex(ord(cpu_ptr[0x1000-1]))}")
 
         free_argp = mali_ioctl_structs.struct_kbase_ioctl_mem_free()
