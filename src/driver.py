@@ -269,7 +269,7 @@ if __name__ == "__main__":
         free_argp = mali_ioctl_structs.struct_kbase_ioctl_mem_free()
         free_argp.gpu_addr = mem_alloc.out.gpu_va
         ret = ioctl(gpu, "KBASE_IOCTL_MEM_FREE", free_argp)
-        assert ret != -1, "Freeing GPU memory failed"
+        assert ret == 0, "Freeing GPU memory failed"
 
         print("Cleanup finished.")
     finally:
