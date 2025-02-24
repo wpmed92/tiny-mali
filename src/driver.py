@@ -1,8 +1,11 @@
 from include import mali_ioctl_structs
 from include.ioctl_map import MALI_IOCTL_MAP
+from include import mali_base_jm_kernel
+import mmap
 import ctypes
 import ctypes.util
 import os
+MAP_FAILED = ctypes.c_void_p(-1)
 
 _IOC_SIZEBITS = 14
 _IOC_NRBITS = 8
@@ -113,16 +116,44 @@ def ioctl(fd, ioctl_name, argp):
     print(hex(request))
     return libc.syscall(0x1d, ctypes.c_int(fd), ctypes.c_ulong(request), ctypes.byref(argp))
 
+def is_pointer_valid(ptr):
+    """Check if a pointer is within a valid memory region in /proc/self/maps."""
+    with open("/proc/self/maps", "r") as maps_file:
+        for line in maps_file:
+            if "/dev/mali0" in line:
+                print(line)
+            parts = line.split()
+
+            if len(parts) < 2:
+                continue
+
+            addr_range, perms = parts[0], parts[1]
+
+            if "r" not in perms:
+                continue
+
+            start, end = (int(x, 16) for x in addr_range.split('-'))
+            if start <= ptr < end:
+                return True
+
+    return False
+
 if __name__ == "__main__":
     libc = ctypes.CDLL(ctypes.util.find_library("libc"))
 
-    # setup malloc and free
-    malloc = libc.malloc
-    malloc.argtypes = [ctypes.c_size_t]
-    malloc.restype = ctypes.c_void_p
+    libc.malloc.argtypes = [ctypes.c_size_t]
+    libc.malloc.restype = ctypes.c_void_p
 
-    free = libc.free
-    free.argtypes = [ctypes.c_void_p]
+    libc.free.argtypes = [ctypes.c_void_p]
+
+    libc.mmap.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_size_t,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int64]
+    libc.mmap.restype = ctypes.c_void_p
 
     # open GPU fds
     gpu = os.open("/dev/mali0", os.O_RDWR)
@@ -130,29 +161,31 @@ if __name__ == "__main__":
 
     # try a sniffed sequence
     try:
-        # Simple version check
+        # version check
         version_check = mali_ioctl_structs.struct_kbase_ioctl_version_check()
-        ioctl(gpu, "KBASE_IOCTL_VERSION_CHECK", version_check)
+        ret = ioctl(gpu, "KBASE_IOCTL_VERSION_CHECK", version_check)
+        assert ret == 0, f"KBASE_IOCTL_VERSION_CHECK failed"
         print("Mali GPU driver version")
         print(f"major={version_check.major}")
         print(f"minor={version_check.minor}")
 
         # set flags
         flags = mali_ioctl_structs.struct_kbase_ioctl_set_flags()
-        flags.create_flags = 0x0
-        ioctl(gpu, "KBASE_IOCTL_SET_FLAGS", flags)
-        print("Flags set")
+        flags.create_flags = 0
+        ret = ioctl(gpu, "KBASE_IOCTL_SET_FLAGS", flags)
+        assert ret == 0, f"KBASE_IOCTL_SET_FLAGS failed"
+        print(f"Flags set={ret}")
 
         # get gpu props -> 1. retreive buffer size
         gpu_props = mali_ioctl_structs.struct_kbase_ioctl_get_gpuprops()
         gpu_props.size = 0x0
         buffer_size = ioctl(gpu, "KBASE_IOCTL_GET_GPUPROPS", gpu_props)
-        print("Get GPU props")
-        print(f"buffer_size={hex(buffer_size)}")
+        assert buffer_size > 0, f"KBASE_IOCTL_GET_GPUPROPS failed: 0 buffer_size for gpu props"
+        print(f"GPU props buffer_size={hex(buffer_size)}")
 
         # get gpu props -> 2. read the buffer
         '''
-         * The buffer will be filled with pairs of values, a uint32_t key identifying the
+        * The buffer will be filled with pairs of values, a uint32_t key identifying the
         * property followed by the value. The size of the value is identified using
         * the bottom bits of the key. The value then immediately followed the key and
         * is tightly packed (there is no padding). All keys and values are
@@ -163,13 +196,11 @@ if __name__ == "__main__":
         * 11 = uint64_t
         '''
         gpu_props = mali_ioctl_structs.struct_kbase_ioctl_get_gpuprops()
-        props_buf = malloc(buffer_size)
+        props_buf = libc.malloc(buffer_size)
         gpu_props.buffer = ctypes.cast(props_buf, ctypes.c_void_p).value
         gpu_props.size = buffer_size
         gpu_props.flags = 0x0
         buffer_size = ioctl(gpu, "KBASE_IOCTL_GET_GPUPROPS", gpu_props)
-        print("Get GPU props")
-        print(f"buffer_size={hex(buffer_size)}")
 
         with open('gpu_props.txt', 'w') as f:
             buf_ptr = ctypes.cast(props_buf, ctypes.c_void_p).value
@@ -197,6 +228,57 @@ if __name__ == "__main__":
 
                 f.write(f"{gpu_properties[key]}={value}\n")
 
-        free(props_buf)
+        libc.free(props_buf)
+
+        #https://github.com/LineageOS/android_kernel_samsung_exynos9820/blob/ae1152aa0a337cb3f1f02d68d83028b554245d26/drivers/gpu/arm/bv_r32p1/mali_kbase_core_linux.c#L812
+        # "Don't allow memory allocation until user space has set up the tracking page"
+        tracking_page = libc.mmap(None, 0x1000, 0, mmap.MAP_SHARED, gpu, mali_base_jm_kernel.BASE_MEM_MAP_TRACKING_HANDLE)
+        assert tracking_page != -1, "tracking page: MAPPING FAILED"
+
+        mem_exec = mali_ioctl_structs.struct_kbase_ioctl_mem_exec_init()
+        mem_exec.va_pages = 1048576
+        ret = ioctl(gpu, "KBASE_IOCTL_MEM_EXEC_INIT", mem_exec)
+
+        # get context id
+        ctx = mali_ioctl_structs.struct_kbase_ioctl_get_context_id()
+        ret = ioctl(gpu, "KBASE_IOCTL_GET_CONTEXT_ID", ctx)
+        print(f"ctx_id={ctx.id}")
+
+        # test mem alloc
+        # allocate a GPU executable memory region
+        mem_alloc = mali_ioctl_structs.union_kbase_ioctl_mem_alloc()
+        mem_alloc._in.va_pages = 1
+        mem_alloc._in.commit_pages = 1
+        mem_alloc._in.flags = mali_base_jm_kernel.BASE_MEM_PROT_CPU_RD | mali_base_jm_kernel.BASE_MEM_PROT_CPU_WR | mali_base_jm_kernel.BASE_MEM_PROT_GPU_RD |\
+            mali_base_jm_kernel.BASE_MEM_PROT_GPU_EX
+        ret = ioctl(gpu, "KBASE_IOCTL_MEM_ALLOC", mem_alloc)
+        print(f"alloced mem={mem_alloc.out.gpu_va}")
+
+        gpu_mem = libc.mmap(None, 0x1000, mmap.PROT_READ | mmap.PROT_WRITE, mmap.MAP_SHARED, gpu, mem_alloc.out.gpu_va)
+        assert gpu_mem != -1, "Mapping GPU memory failed."
+        assert is_pointer_valid(gpu_mem), "Invalid pointer from mmap."
+
+        cpu_ptr = ctypes.cast(gpu_mem, ctypes.POINTER(ctypes.c_char))
+        print(f"mapped pointer: {cpu_ptr}")
+
+        # Memset to see if accessing the region works
+        ctypes.memset(cpu_ptr, 0x92, 0x1000)
+        print("Wrote to GPU memory")
+        print(f"ptr[0]={hex(ord(cpu_ptr[0x1000-1]))}")
+        print(f"ptr[0x1000-1]={hex(ord(cpu_ptr[0x1000-1]))}")
+
+        # cleanup
+        #munmap_ret = libc.munmap(tracking_page, 0x1000)
+        #assert munmap_ret != -1, "Unmapping tracking_page failed"
+
+        munmap_ret = libc.munmap(gpu_mem, 0x1000)
+        assert munmap_ret != -1, "Unmapping gpu_mem failed"
+
+        free_argp = mali_ioctl_structs.struct_kbase_ioctl_mem_free()
+        free_argp.gpu_addr = mem_alloc.out.gpu_va
+        ret = ioctl(gpu, "KBASE_IOCTL_MEM_FREE", free_argp)
+        assert ret != -1, "Freeing GPU memory failed"
+
+        print("Cleanup finished.")
     finally:
         os.close(gpu)
