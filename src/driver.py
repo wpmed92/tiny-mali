@@ -267,9 +267,6 @@ if __name__ == "__main__":
         print(f"ptr[0]={hex(ord(cpu_ptr[0x1000-1]))}")
         print(f"ptr[0x1000-1]={hex(ord(cpu_ptr[0x1000-1]))}")
 
-        munmap_ret = libc.munmap(gpu_mem, 0x1000)
-        assert munmap_ret != -1, "Unmapping gpu_mem failed"
-
         free_argp = mali_ioctl_structs.struct_kbase_ioctl_mem_free()
         free_argp.gpu_addr = mem_alloc.out.gpu_va
         ret = ioctl(gpu, "KBASE_IOCTL_MEM_FREE", free_argp)
