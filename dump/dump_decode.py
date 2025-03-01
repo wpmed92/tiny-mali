@@ -1,4 +1,4 @@
-from include import mali_base_jm_kernel
+from mali import mali_base_jm_kernel
 
 def get_flag(flag, bit):
     return 1 if flag&bit else 0

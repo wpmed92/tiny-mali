@@ -2,8 +2,11 @@ import re
 import json
 import mali_ioctl_structs
 import ctypes
+from driver.ioc import _ioc, dir_map
+from pathlib import Path
 
 ioctl_map = {}
+cur_dir = Path(__file__).resolve().parent
 
 def extract_defines(kbase_ioctl_type, file_path):
     define_pattern = re.compile(r'#define\s+(KBASE_IOCTL_\S+|MALI_EXYNOS_\S+)')
@@ -29,13 +32,14 @@ def extract_defines(kbase_ioctl_type, file_path):
                 struct_type = getattr(mali_ioctl_structs, "_".join(struct_name[1:].split(" ")), None)
                 if struct_type is not None:
                     size = ctypes.sizeof(struct_type)
-            ioctl_map[name] = {"type": kbase_ioctl_type, "nr": nr, "payload": struct_name[1:], "dir": _dir, "size": size}
+            ioc = _ioc(dir_map[_dir], kbase_ioctl_type, nr, size)
+            ioctl_map[name] = {"type": kbase_ioctl_type, "nr": nr, "payload": struct_name[1:], "dir": _dir, "size": size, "encoded": ioc}
 
 if __name__ == "__main__":
     file_path = 'mali_exynos_ioctl.h'
-    extract_defines(0x80, 'mali_kbase_ioctl.h')
-    extract_defines(0x80, 'mali_kbase_jm_ioctl.h')
-    extract_defines(0x82, 'mali_exynos_ioctl.h')
+    extract_defines(0x80, cur_dir / 'mali_kbase_ioctl.h')
+    extract_defines(0x80, cur_dir / 'mali_kbase_jm_ioctl.h')
+    extract_defines(0x82, cur_dir /'mali_exynos_ioctl.h')
 
     output_file = 'ioctl_map.py'
     with open(output_file, 'w') as f:
