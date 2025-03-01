@@ -235,7 +235,7 @@ if __name__ == "__main__":
         assert ret == 0, "Freeing GPU memory failed"
 
         # unmap our cpu ptr
-        libc.munmap(cpu_ptr)
+        gpu.munmap(cpu_ptr, 0x1000)
 
         print("Cleanup finished.")
     finally:
